@@ -36,10 +36,10 @@ const MainContent = () => {
     );
 
     const handleCreatePost = async () => {
+        setOpen(false);
         const { success, message } = await createPost(newPost);
         setSnackbarMessage(message);
         setSnackbarOpen(true);
-        setOpen(true);
         if (success) {
             setNewPost({ text: "", img: "" });
         }
