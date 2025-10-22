@@ -20,6 +20,13 @@ export const sequelize = new Sequelize({
     port: process.env.PG_PORT,
     dialect: "postgres",
     logging: false,
+    // dialectOptions: {
+    //     ssl:{
+    //         require: true,
+    //         rejectUnauthorized: false
+    //     },
+    //     family: 'IPv4'
+    // }
 });
 
 export const connect_pg = async () => {

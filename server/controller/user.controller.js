@@ -4,8 +4,8 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 
 export const createUser = async (req, res) => {
-    const { username, email, password } = req.body;
-    if(!username || !email || !password) {
+    const { username, email, password, confirmPassword } = req.body;
+    if(!username || !email || !password || !confirmPassword) {
         return res.status(400).json({ success: false, message: "Please provide all fields" });
     }
     try{

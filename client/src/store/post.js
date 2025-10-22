@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import api from "../api/api";
 
 export const usePostStore = create((set) => ({
   posts: [],
@@ -7,18 +8,16 @@ export const usePostStore = create((set) => ({
     if (!newPost.text) {
       return { success: false, message: "Please fill in all fields." };
     }
-    const res = await fetch("/api/posts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newPost),
-    });
-    const data = await res.json();
-    set((state) => ({ posts: [...state.posts, data.data] }));
+    const res = await api.post("/api/posts", newPost);
+    set((state) => ({ posts: [...state.posts, res.data.data] }));
     return { success: true, message: "Post created successfully!" };
   },
   fetchPosts: async () => {
-    const res = await fetch("/api/posts");
-    const data = await res.json();
-    set({ posts: data.data });
+    try {
+      const res = await api.get("/api/posts");
+      set({ posts: res.data.data });
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
   },
 }));

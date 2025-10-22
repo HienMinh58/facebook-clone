@@ -13,8 +13,10 @@ import GifIcon from '@mui/icons-material/Gif';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 import { usePostStore } from '../store/post';
+import { useUserStore } from '../store/user';
 
 const MainContent = () => {
+    const { currentUser, hasPermission } = useUserStore();
     const [open, setOpen] = useState(false);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -52,7 +54,7 @@ const MainContent = () => {
                 <Avatar src="/profile-pic.jpg" />
                 <TextField
                     fullWidth
-                    placeholder="What's on your mind, Hiến Minh?"
+                    placeholder={`What's on your mind, ${currentUser?.username || 'Guest'}?`}
                     sx={{ ml: 2, bgcolor: 'grey.100', borderRadius: 5, cursor: 'pointer' }}
                 />
             </Box>
@@ -80,7 +82,7 @@ const MainContent = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Avatar src="/profile-pic.jpg" />
                 <Box sx={{ ml: 2 }}>
-                <Typography>Nguyễn Hiến Minh</Typography>
+                <Typography>{currentUser.username || 'Guest'}</Typography>
                 <FormControl size="small">
                     <Select defaultValue="friends" variant="outlined">
                     <MenuItem value="friends">Friends</MenuItem>
@@ -89,7 +91,7 @@ const MainContent = () => {
                 </Box>
             </Box>
             <TextField fullWidth multiline rows={4}
-             placeholder="What's on your mind, Hiến Minh?"
+             placeholder={`What's on your mind, ${currentUser?.username || 'Guest'}?`}
              value={newPost.text} 
              onChange={(e) => setNewPost({ ...newPost, text: e.target.value})} 
              variant="standard" />
@@ -120,6 +122,12 @@ const MainContent = () => {
             <Card key={post._id || post.text} sx={{ mb: 2 }}> {/* Key tốt hơn */}
                 <CardHeader avatar={<Avatar src={post.pfp} />} title={post.user_name} subheader={post.date_submitted} />
                 <CardContent><Typography>{post.text}</Typography></CardContent>
+                {hasPermission('like') && (
+                    <Button onClick={() => likePost(post._id)}>Like</Button>
+                )}
+                {hasPermission('share') && (
+                    <Button onClick={() => sharePost(post._id)}>Share</Button>
+                )}
             </Card>
         ))}
         </Box>

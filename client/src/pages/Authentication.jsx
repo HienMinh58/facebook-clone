@@ -3,7 +3,8 @@ import { Box, Typography, TextField, Button, Link, Divider, Snackbar, IconButton
 import CloseIcon from '@mui/icons-material/Close';
 import { useUserStore } from "../store/user";
 import { useState } from "react";
-
+import { useNavigate } from 'react-router-dom';
+import AuthForm from "../components/AuthForm";
 
 const Authentication = () => {
     const { registerUser, loginUser } = useUserStore();
@@ -13,6 +14,17 @@ const Authentication = () => {
         text: "",
         img: "",
     });
+    const navigate = useNavigate();
+    const loginFields = [
+        { name: 'email', label: 'Email or phone number' },
+        { name: 'password', label: 'Password', type: 'password' },
+    ];
+    const handleLoginSuccess = (navigate) => {
+        navigate('/dashboard'); // Example post-login redirect
+    };
+    const handleRedirectToRegister = () => {
+        navigate('/register');
+    };
 
     const handleRegister = async () => {
         const { success, message } = await registerUser(newUser);
@@ -83,90 +95,13 @@ const Authentication = () => {
                 </Typography>
             </Box>
 
-            {/* Login Form */}
-            <Box
-                sx={{
-                backgroundColor: '#ffffff',
-                borderRadius: 1,
-                boxShadow: 1,
-                padding: 3,
-                width: { xs: '100%', sm: '400px' }, // Responsive width
-                textAlign: 'center',
-                }}
-            >
-                <TextField
-                fullWidth
-                value={newUser.email} 
-                onChange={(e) => setNewUser({ ...newUser, email: e.target.value})} 
-                label="Email or phone number"
-                variant="outlined"
-                margin="normal"
-                sx={{ marginBottom: 2 }}
-                />
-                <TextField
-                fullWidth
-                value={newUser.password} 
-                onChange={(e) => setNewUser({ ...newUser, password: e.target.value})} 
-                label="Password"
-                type="password"
-                variant="outlined"
-                margin="normal"
-                sx={{ marginBottom: 2 }}
-                />
-                <Button
-                fullWidth
-                variant="contained"
-                onClick={handleLogin}
-                sx={{
-                    backgroundColor: '#1877f2',
-                    color: '#ffffff',
-                    fontWeight: 'bold',
-                    textTransform: 'none',
-                    padding: 1.5,
-                    marginBottom: 2,
-                    '&:hover': { backgroundColor: '#166fe5' },
-                }}
-                >
-                Log In
-                </Button>
-                <Link
-                href="#"
-                underline="hover"
-                sx={{
-                    color: '#1877f2',
-                    fontSize: '0.875rem',
-                    marginBottom: 2,
-                    display: 'block',
-                }}
-                >
-                Forgot password?
-                </Link>
-                <Divider sx={{ marginY: 2 }}>or</Divider>
-                <Button
-                fullWidth
-                variant="contained"
-                sx={{
-                    backgroundColor: '#42b72a', // Green for create account, similar to Facebook
-                    color: '#ffffff',
-                    fontWeight: 'bold',
-                    textTransform: 'none',
-                    padding: 1.5,
-                    '&:hover': { backgroundColor: '#36a420' },
-                }}
-                >
-                Create new account
-                </Button>
-            </Box>
-            <Snackbar
-            open={snackbarOpen}
-            autoHideDuration={6000}
-            onClose={handleCloseSnackbar}
-            message={snackbarMessage}
-            action={
-                <IconButton size="small" aria-label="close" color="inherit" onClick={handleCloseSnackbar}>
-                    <CloseIcon fontSize="small" />
-                </IconButton>
-            }
+            <AuthForm
+                mode="login"
+                fields={loginFields}
+                onSubmitSuccess={handleLoginSuccess}
+                submitButtonText="Log In"
+                secondaryButtonText="Create new account"
+                secondaryAction={handleRedirectToRegister}
             />
             {/* Footer Links (Optional, mimicking Facebook's footer) */}
             <Box sx={{ marginTop: 4, textAlign: 'center', color: '#8a8d91', fontSize: '0.75rem' }}>

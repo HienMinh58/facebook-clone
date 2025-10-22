@@ -1,5 +1,6 @@
 import { Box } from '@mui/material'
 import React from 'react'
+import { usePostStore } from '../store/post'
 
 const PostCard = ({post}) => {
   return (

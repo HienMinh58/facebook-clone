@@ -15,7 +15,7 @@ export const useUserStore = create((set) => ({
                 body: JSON.stringify(newUser),
             });
             if( !res.ok ) {
-                throw new Error("Registration");
+                throw new Error("Registration!");
             }
             const data = await res.json();
             set((state) => ({
@@ -52,4 +52,12 @@ export const useUserStore = create((set) => ({
         }
     },
     logoutUser: () => set({ currentUser: null, token: null }),
+    hasPermission: (permission) => (state) => {
+        const role = state.currentUser?.role || 'guest';
+        const permissions = {
+            'user': ['message', 'like', 'share', 'post'],  
+            'admin': ['message', 'like', 'share', 'post', 'delete', 'edit-any'],  
+        };
+        return permissions[role]?.includes(permission) || false;
+    },
 }))
