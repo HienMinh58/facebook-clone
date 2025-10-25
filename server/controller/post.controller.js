@@ -7,18 +7,37 @@ export const getPosts = async (req, res) => {
         res.status(200).json({ success: true, data: posts});
     } catch (error) {
         console.log("error in fetching posts:", error.message);
-        res.status(500).json( {succes: false, message: "Server error" });
+        res.status(500).json( {success: false, message: "Server error" });
     }
 };
-
-export const createPosts = async (req, res) => {
-    const post = req.body;
-
-    if(!post.text) {
-        return res.status(400).json({ success: false, message: "Please provide all fields" });
+export const getPost = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const post = await Post.findById(id);
+        if (!post) {
+            return res.status(404).json({ success: false, message: "Post not found" });
+        }
+        res.status(200).json({ success: true, data: post });
+    } catch (error) {
+        res.status(500).json({success: false, message: 'Server error'});
     }
+}
+export const createPosts = async (req, res) => {
+    const { text, img } = req.body;
 
-    const newPost = new Post(post)
+    if (!text) { 
+        return res.status(400).json({ success: false, message: "Text field is required" });
+    }
+    if (!req.user || !req.user.id) {
+        return res.status(401).json({ success: false, message: "User authentication required" });
+    }
+    const userId = req.user.id;
+
+    const newPost = new Post({
+        text,
+        img,
+        userId
+    })
 
     try {
         await newPost.save();

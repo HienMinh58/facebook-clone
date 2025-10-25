@@ -4,6 +4,8 @@ import api from "../api/api";
 export const usePostStore = create((set) => ({
   posts: [],
   setPosts: (posts) => set({ posts }),
+  getPosts: () => get().posts,
+  // getFriendPosts : () => 
   createPost: async (newPost) => {
     if (!newPost.text) {
       return { success: false, message: "Please fill in all fields." };

@@ -16,7 +16,7 @@ import { usePostStore } from '../store/post';
 import { useUserStore } from '../store/user';
 
 const MainContent = () => {
-    const { currentUser, hasPermission } = useUserStore();
+    const { currentUser } = useUserStore();
     const [open, setOpen] = useState(false);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -24,7 +24,7 @@ const MainContent = () => {
         text: "",
         img: "",
     });
-    const { posts, createPost } = usePostStore();
+    const { posts, createPost, getPosts } = usePostStore();
 
 
     const handleClose = (event, reason) => {
@@ -44,6 +44,19 @@ const MainContent = () => {
         setSnackbarOpen(true);
         if (success) {
             setNewPost({ text: "", img: "" });
+        }
+    };
+
+    const handleLike = async (postId) => {
+        if(!currentUser?.id) {
+            setSnackbarMessage('Please login to like post!');
+            setSnackbarOpen(true);
+        }
+
+        try {
+            const token = localStorage.getItem('authToken') || currentUser.token;
+
+            const response = await fetch(`/api/posts/${postId}/like`)
         }
     };
 
@@ -120,14 +133,14 @@ const MainContent = () => {
         <Box sx={{ mt: 2 }}>
             {posts.map((post) => (
             <Card key={post._id || post.text} sx={{ mb: 2 }}> {/* Key tốt hơn */}
-                <CardHeader avatar={<Avatar src={post.pfp} />} title={post.user_name} subheader={post.date_submitted} />
+                <CardHeader avatar={<Avatar src={post.pfp} />} title={post.user_name} subheader={post.createdAt} />
                 <CardContent><Typography>{post.text}</Typography></CardContent>
-                {hasPermission('like') && (
+                
                     <Button onClick={() => likePost(post._id)}>Like</Button>
-                )}
-                {hasPermission('share') && (
+                
+                
                     <Button onClick={() => sharePost(post._id)}>Share</Button>
-                )}
+                
             </Card>
         ))}
         </Box>

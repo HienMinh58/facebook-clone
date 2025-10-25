@@ -3,6 +3,7 @@ import React from 'react'
 import { usePostStore } from '../store/post'
 
 const PostCard = ({post}) => {
+  const { fetchPosts } = usePostStore();
   return (
     <Box sx={{ mt: 2 }}>
         

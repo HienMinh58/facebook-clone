@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage';
 import Authentication from './pages/Authentication';
 import Register from './pages/Register';
 import Navbar from "./components/Navbar";
+import Profile from './pages/Profile';
 function App() {
   return (
     <Box>
@@ -13,6 +14,7 @@ function App() {
         <Route path='/dashboard' element={<HomePage/>} />
         <Route path='/login' element={<Authentication/>} />
         <Route path="/register" element={<Register/>} />
+        <Route path="/profile" element={<Profile/>} />
       </Routes>
     </Box>
   );

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, List, ListItem, ListItemIcon, ListItemText, Typography, IconButton, Avatar } from '@mui/material';
 import ContactsIcon from '@mui/icons-material/Contacts';
 import AdIcon from '@mui/icons-material/Star';
@@ -6,6 +7,11 @@ import SearchIcon from '@mui/icons-material/Search';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import users from '../data/user.json';
 const RightSidebar = () => {
+    const navigate = useNavigate();  // Khởi tạo hook để xử lý navigation
+
+    const handleProfileClick = () => {
+        navigate('/profile');  // Chuyển hướng đến /profile khi click
+    };
   return (
     <Box sx={{ width: 400, p: 2, position: 'fixed', top: '100px', right: 0}}>
         <Box sx={{width: 300, display: 'flex', alignItems: 'center', borderRadius: 1, p: 2, mb: 2 }}>

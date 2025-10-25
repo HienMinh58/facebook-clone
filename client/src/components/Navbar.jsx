@@ -60,7 +60,13 @@ function Navbar() {
   const isAuthenticated = !!currentUser;
   const [anchorEl, setAnchorEl] = useState(null); // Trạng thái cho menu
   const open = Boolean(anchorEl);
-
+  
+  const handleProfileClick = () => {
+      navigate('/profile');  // Chuyển hướng đến /profile khi click
+  };
+  const handleHomeClick = () => {
+    navigate('/dashboard');
+  }
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget); // Mở menu tại vị trí nhấp
   };
@@ -69,11 +75,18 @@ function Navbar() {
     setAnchorEl(null); // Đóng menu
   };
 
-  const handleLogout = () => {
-    logoutUser(); // Gọi hàm đăng xuất từ store
-    handleMenuClose(); // Đóng menu sau khi đăng xuất
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await logoutUser();  // Giả sử logoutUser là async (gọi API)
+      // Xóa token thủ công nếu store không tự xử lý
+      localStorage.removeItem('authToken');  // Thay 'authToken' bằng key thực tế
+      handleMenuClose();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
+  
   return (
     <AppBar position="fixed" color="default" elevation={1}>
       <Toolbar sx={{ justifyContent: 'space-between', height: '60px' }}>
@@ -99,7 +112,7 @@ function Navbar() {
 
         {isAuthenticated && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <IconButton>
+            <IconButton onClick={handleHomeClick}>
               <FontAwesomeIcon icon={faHouse} />
             </IconButton>
             <IconButton>
@@ -130,7 +143,7 @@ function Navbar() {
                 <MessageIcon />
               </IconButton>
               <IconButton color="inherit">
-                <Avatar alt="Profile" src="/path-to-your-profile-pic.jpg" />
+                <Avatar alt="Profile" src="/path-to-your-profile-pic.jpg" onClick={handleProfileClick} />
               </IconButton>
               <IconButton color="inherit" onClick={handleMenuClick}>
                 <MenuIcon />

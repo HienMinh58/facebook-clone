@@ -1,19 +1,31 @@
 import React from 'react'
-import { Box } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import LeftSidebar from '../components/Leftsidebar'
 import RightSidebar from '../components/RightSidebar'
 import MainContent from '../components/MainContent'
+import { useUserStore } from '../store/user'
+
 const HomePage = () => {
+  const { currentUser, hasPermission } = useUserStore();
+
   return (
-    <div>
-      <Box sx={{ display: 'flex', mt: '64px' }}>
-        <LeftSidebar />
-        <Box sx={{ flex: 1, maxWidth: '800px', mx: 'auto' }}>
-          <MainContent />
+    <Box>
+      {currentUser ? (
+        <Box sx={{ display: 'flex', mt: '64px' }}>
+          <LeftSidebar />
+          <Box sx={{ flex: 1, maxWidth: '800px', mx: 'auto' }}>
+            <MainContent hasPermission={hasPermission} />
+          </Box>
+          <RightSidebar />
         </Box>
-        <RightSidebar />
-      </Box>
-    </div>
+      ) : (
+        <Box sx={{ display: 'flex', mt: '64px', height: 'calc(100vh - 64px)', alignItems: 'center', justifyContent: 'center' }}>
+          <Typography variant="h6" align="center">
+            Vui lòng đăng nhập để xem nội dung
+          </Typography>
+        </Box>
+      )}
+    </Box>
   )
 }
 

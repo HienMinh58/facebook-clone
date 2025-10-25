@@ -10,6 +10,16 @@ const postSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    likes: {
+        type: Number,
+        default: 0,
+        required: false
+    },
+    userId : {
+        type: String,
+        required: true,
+        index: true
+    }
 }, {
     timestamps: true    
 });
