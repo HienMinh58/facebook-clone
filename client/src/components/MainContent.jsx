@@ -1,4 +1,4 @@
-import  { useState } from 'react'
+import  { useEffect, useEffectEvent, useState } from 'react'
 import { Box, Avatar, TextField, Button, Divider, Card, CardHeader, CardMedia, CardContent, Typography, Modal, Paper, IconButton, Select, MenuItem, FormControl, Snackbar } from '@mui/material';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import CloseIcon from '@mui/icons-material/Close';
@@ -25,7 +25,9 @@ const MainContent = () => {
         img: "",
     });
     const { posts, createPost, getPosts } = usePostStore();
-
+    useEffect(() => {
+        getPosts();
+    }, [getPosts]);
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') return;
@@ -51,12 +53,44 @@ const MainContent = () => {
         if(!currentUser?.id) {
             setSnackbarMessage('Please login to like post!');
             setSnackbarOpen(true);
+            return;
         }
-
+        if (!postId || typeof postId !== 'string') {
+            setSnackbarMessage('Invalid postId!');
+            setSnackbarOpen(true);
+            return;
+        }
         try {
-            const token = localStorage.getItem('authToken') || currentUser.token;
+            const persisted = JSON.parse(localStorage.getItem("user-storage"));
+            const token = persisted?.state?.token;
 
-            const response = await fetch(`/api/posts/${postId}/like`)
+            const response = await fetch('/api/likes', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ postId })
+            })
+
+            const data = response.json();
+            
+
+            console.log('Response status:', response.status);
+            console.log('Response headers:', [...response.headers.entries()]);
+            if (!response.ok) {
+                setSnackbarMessage(data.message || `Error: HTTP ${response.status}`);
+                setSnackbarOpen(true);
+                return;
+            }
+
+            await getPosts();
+            setSnackbarMessage(data.message || 'Liked post successfully!');
+            setSnackbarOpen(true);
+        } catch(error) {
+            console.error('Fetch error:', error);
+            setSnackbarMessage(`Error: ${error.message}`);
+            setSnackbarOpen(true);
         }
     };
 
@@ -133,13 +167,13 @@ const MainContent = () => {
         <Box sx={{ mt: 2 }}>
             {posts.map((post) => (
             <Card key={post._id || post.text} sx={{ mb: 2 }}> {/* Key tốt hơn */}
-                <CardHeader avatar={<Avatar src={post.pfp} />} title={post.user_name} subheader={post.createdAt} />
+                <CardHeader avatar={<Avatar src={post.pfp} />} title={currentUser.username} subheader={post.createdAt} />
                 <CardContent><Typography>{post.text}</Typography></CardContent>
                 
-                    <Button onClick={() => likePost(post._id)}>Like</Button>
+                    <Button onClick={() => handleLike(post._id)}>Like ({post.likes || 0}) </Button>
+                    
                 
-                
-                    <Button onClick={() => sharePost(post._id)}>Share</Button>
+                    {/* <Button onClick={() => sharePost(post._id)}>Share</Button> */}
                 
             </Card>
         ))}

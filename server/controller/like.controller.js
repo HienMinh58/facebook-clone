@@ -2,17 +2,23 @@ import { where } from "sequelize";
 import Like from "../models/like.model.js";
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
-
+import mongoose from "mongoose";
 export const likePost = async (req, res) => {
     try{
         const userId = req.user.id;
         const { postId } = req.body;
         
+        if (!mongoose.Types.ObjectId.isValid(postId)) {
+            return res.status(400).json({ message: "Invalid postId" });
+        }
+        
         const existingLike = await Like.findOne({where: { userId, postId }});
         if(existingLike) {
             return res.status(400).json({ message: "User have already liked this post." });
         }
-
+        console.log("userId:", userId);
+        console.log("postId:", postId);
+        console.log("existingLike:", existingLike);
         const newLike = await Like.create({ userId, postId });
 
         await Post.findByIdAndUpdate(postId, { $inc: { likes: 1 } });

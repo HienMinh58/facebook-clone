@@ -4,8 +4,14 @@ import api from "../api/api";
 export const usePostStore = create((set) => ({
   posts: [],
   setPosts: (posts) => set({ posts }),
-  getPosts: () => get().posts,
-  // getFriendPosts : () => 
+  getPosts: async () => {
+    try {
+      const res = await api.get("/api/posts");
+      set({ posts: res.data.data || [] })
+    } catch(error) {
+      console.error("Error fetching post:", error);
+    }
+  },
   createPost: async (newPost) => {
     if (!newPost.text) {
       return { success: false, message: "Please fill in all fields." };
