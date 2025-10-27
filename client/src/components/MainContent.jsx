@@ -11,7 +11,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import GifIcon from '@mui/icons-material/Gif';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-
+import PostCard from './PostCard';
 import { usePostStore } from '../store/post';
 import { useUserStore } from '../store/user';
 
@@ -24,10 +24,10 @@ const MainContent = () => {
         text: "",
         img: "",
     });
-    const { posts, createPost, getPosts } = usePostStore();
+    const { posts, createPost, getPosts, getPostUserName } = usePostStore();
     useEffect(() => {
-        getPosts();
-    }, [getPosts]);
+        getPostUserName();
+    }, [getPostUserName]);
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') return;
@@ -84,7 +84,7 @@ const MainContent = () => {
                 return;
             }
 
-            await getPosts();
+            await getPostUserName();
             setSnackbarMessage(data.message || 'Liked post successfully!');
             setSnackbarOpen(true);
         } catch(error) {
@@ -166,17 +166,8 @@ const MainContent = () => {
         />
         <Box sx={{ mt: 2 }}>
             {posts.map((post) => (
-            <Card key={post._id || post.text} sx={{ mb: 2 }}> {/* Key tốt hơn */}
-                <CardHeader avatar={<Avatar src={post.pfp} />} title={currentUser.username} subheader={post.createdAt} />
-                <CardContent><Typography>{post.text}</Typography></CardContent>
-                
-                    <Button onClick={() => handleLike(post._id)}>Like ({post.likes || 0}) </Button>
-                    
-                
-                    {/* <Button onClick={() => sharePost(post._id)}>Share</Button> */}
-                
-            </Card>
-        ))}
+                <PostCard key={post._id} post={post} onLike={handleLike} />
+            ))}
         </Box>
     </Box>
   )

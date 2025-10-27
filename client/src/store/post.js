@@ -12,6 +12,21 @@ export const usePostStore = create((set) => ({
       console.error("Error fetching post:", error);
     }
   },
+  getPostUserName : async () => {
+    try {
+      const res = await api.get(`/api/posts/post/username`);
+      if(!res.data.success) {
+        throw new Error(res.data.message || 'Failed to fetch user posts');
+      }
+      if(!res.data.data || res.data.data.length === 0) {
+        throw new Error('No posts found for user');
+      }
+      set({ posts: res.data.data });
+    } catch(error) {
+      console.error("Error fetching posts with usernames:", error);
+      set({ posts: [] });
+    }
+  },
   createPost: async (newPost) => {
     if (!newPost.text) {
       return { success: false, message: "Please fill in all fields." };

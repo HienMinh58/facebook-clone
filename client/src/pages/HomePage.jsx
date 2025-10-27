@@ -16,7 +16,7 @@ const HomePage = () => {
           <Box sx={{ flex: 1, maxWidth: '800px', mx: 'auto' }}>
             <MainContent hasPermission={hasPermission} />
           </Box>
-          <RightSidebar />
+          {/* <RightSidebar /> */}
         </Box>
       ) : (
         <Box sx={{ display: 'flex', mt: '64px', height: 'calc(100vh - 64px)', alignItems: 'center', justifyContent: 'center' }}>
