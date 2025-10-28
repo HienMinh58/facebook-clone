@@ -14,7 +14,7 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import PostCard from './PostCard';
 import { usePostStore } from '../store/post';
 import { useUserStore } from '../store/user';
-
+import { useLoading } from '../contexts/LoadingContext';
 const MainContent = () => {
     const { currentUser } = useUserStore();
     const [open, setOpen] = useState(false);
@@ -24,10 +24,34 @@ const MainContent = () => {
         text: "",
         img: "",
     });
+    const { setIsLoading } = useLoading();
     const { posts, createPost, getPosts, getPostUserName } = usePostStore();
     useEffect(() => {
-        getPostUserName();
-    }, [getPostUserName]);
+        const loadData = async () => {
+            const startTime = Date.now(); // Bắt đầu đo thời gian
+            try {
+                
+                // Gọi getPostUserName() để tải usernames
+                await getPostUserName();
+
+                // Tính thời gian đã trôi qua
+                const elapsedTime = Date.now() - startTime;
+
+                // Đảm bảo ít nhất 1 giây: Nếu nhanh hơn, chờ thêm
+                if (elapsedTime < 1000) {
+                    await new Promise(resolve => setTimeout(resolve, 1000 - elapsedTime));
+                }
+            } catch (error) {
+                console.error('Lỗi tải dữ liệu:', error);
+                // Xử lý lỗi: Có thể set error state hoặc thông báo
+            } finally {
+                // Kết thúc loading sau khi hoàn tất (với minimum delay)
+                setIsLoading(false);
+            }
+        };
+
+        loadData();
+    }, [getPostUserName, setIsLoading]);
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') return;
@@ -73,7 +97,7 @@ const MainContent = () => {
                 body: JSON.stringify({ postId })
             })
 
-            const data = response.json();
+            const data = await response.json();
             
 
             console.log('Response status:', response.status);

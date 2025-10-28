@@ -6,6 +6,10 @@ export const sendFriendRequest = async (req, res) => {
         const { friendId } = req.body;
         const userId = req.user.id;
 
+        if (userId === friendId) {
+            return res.status(400).json({ error: 'Cannot send friend request to yourself' });
+        }
+        
         const friend = await User.findByPk(friendId);
         if(!friend) {
             return res.status(404).json({ error: 'Unspecified user' });

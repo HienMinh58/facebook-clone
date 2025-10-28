@@ -70,6 +70,9 @@ function Navbar() {
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget); // Mở menu tại vị trí nhấp
   };
+  const handleSearch = () => {
+    
+  }
 
   const handleMenuClose = () => {
     setAnchorEl(null); // Đóng menu

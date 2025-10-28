@@ -12,49 +12,90 @@ import {
   Stack,
 } from '@mui/material';
 import { useUserStore } from '../store/user';
-
+import { usePostStore } from '../store/post';
+import PostCard from '../components/PostCard';
 const Profile = () => {
-    const { currentUser: storeUser } = useUserStore();
+    const { currentUser } = useUserStore();
     const token = localStorage.getItem('authToken');
-    const [user, setUser] = useState(storeUser || null);
+    const [user, setUser] = useState(currentUser || null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (storeUser) {
-        setUser(storeUser);
-        localStorage.setItem("profileUser", JSON.stringify(storeUser));
-        setLoading(false);
+    const { posts, getProfilePost } = usePostStore();
+    const handleLike = async (postId) => {
+      if (!currentUser?.id) {
+        setSnackbarMessage('Please login to like post!');
+        setSnackbarOpen(true);
         return;
       }
-    const savedUser = localStorage.getItem("profileUser");
-    if (savedUser) {
-    setUser(JSON.parse(savedUser));
-    setLoading(false);
-    return;
-    }
 
-      if (!token) {
-        setError('Vui lòng đăng nhập để xem hồ sơ.');
-        setLoading(false);
+      if (!postId || typeof postId !== 'string') {
+        setSnackbarMessage('Invalid postId!');
+        setSnackbarOpen(true);
         return;
       }
 
       try {
+        const persisted = JSON.parse(localStorage.getItem("user-storage"));
+        const token = persisted?.state?.token;
+
+        const response = await fetch('/api/likes', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ postId })
+        });
+
+        const data = await response.json();
+        console.log('Response status:', response.status);
+
+        if (!response.ok) {
+          setSnackbarMessage(data.message || `Error: HTTP ${response.status}`);
+          setSnackbarOpen(true);
+          return;
+        }
+
+        await getProfilePost();
+        setSnackbarMessage(data.message || 'Liked post successfully!');
+        setSnackbarOpen(true);
+      } catch (error) {
+        console.error('Fetch error:', error);
+        setSnackbarMessage(`Error: ${error.message}`);
+        setSnackbarOpen(true);
+      }
+  };
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        if (currentUser) {
+          setUser(currentUser);
+          localStorage.setItem("profileUser", JSON.stringify(currentUser));
+          return;
+        }
+
+        const savedUser = localStorage.getItem("profileUser");
+        if (savedUser) {
+          setUser(JSON.parse(savedUser));
+          return;
+        }
+
+        if (!token) {
+          setError('Vui lòng đăng nhập để xem hồ sơ.');
+          return;
+        }
+
         const response = await fetch('/auth/profile', {
-          method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch profile data.');
-        }
-
+        if (!response.ok) throw new Error('Failed to fetch profile data.');
         const data = await response.json();
-        setUser(data.data); // Extract the user data from the response structure
+        setUser(data.data);
       } catch (err) {
         setError(err.message || 'An error occurred while fetching profile.');
       } finally {
@@ -63,7 +104,8 @@ const Profile = () => {
     };
 
     fetchUserProfile();
-    }, [storeUser, token]);
+    getProfilePost(); // fetch posts
+  }, [currentUser]);
 
     if (loading) {
         return (
@@ -172,31 +214,10 @@ const Profile = () => {
       </Card>
 
       {/* Posts Section */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" component="h2" sx={{ mb: 3, fontWeight: 'medium' }}>
-            Posts
-        </Typography>
-
-        {profileData?.posts?.length > 0 ? (
-            profileData.posts.map((post) => (
-            <Card key={post.id} sx={{ mb: 3, borderRadius: 2, boxShadow: 1 }}>
-                <CardContent sx={{ pb: 2 }}>
-                <Typography variant="body1" sx={{ mb: 2, lineHeight: 1.5 }}>
-                    {post.content}
-                </Typography>
-                <Stack direction="row" justifyContent="space-between" sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                    <Typography>{post.likes} Likes</Typography>
-                    <Typography>{post.comments} Comments</Typography>
-                    <Typography>{post.timestamp}</Typography>
-                </Stack>
-                </CardContent>
-            </Card>
-            ))
-        ) : (
-            <Typography variant="body2" color="text.secondary">
-            No posts.
-            </Typography>
-        )}
+        <Box sx={{ mt: 2 }}>
+          {posts.map((post) => (
+              <PostCard key={post._id} post={post} onLike={handleLike} />
+          ))}
         </Box>
 
     </Container>

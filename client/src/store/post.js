@@ -3,6 +3,7 @@ import api from "../api/api";
 
 export const usePostStore = create((set) => ({
   posts: [],
+  profilePosts: [],
   setPosts: (posts) => set({ posts }),
   getPosts: async () => {
     try {
@@ -10,6 +11,20 @@ export const usePostStore = create((set) => ({
       set({ posts: res.data.data || [] })
     } catch(error) {
       console.error("Error fetching post:", error);
+    }
+  },
+  getProfilePost : async () => {
+    try {
+      const res = await api.get(`/api/profile`);
+      if(!res.data.success) {
+        throw new Error(res.data.message || 'Failed to fetch user posts');
+      }
+
+      const posts = res.data.data.postsWithUserName || []; 
+      set({ posts });
+    } catch (error) {
+      console.error("Error fetching posts with usernames:", error);
+      set({ posts: [] });
     }
   },
   getPostUserName : async () => {
