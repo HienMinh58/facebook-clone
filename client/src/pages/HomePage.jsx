@@ -12,7 +12,7 @@ const HomePage = () => {
     <Box>
       {currentUser ? (
         <Box sx={{ display: 'flex', mt: '64px' }}>
-          <LeftSidebar />
+          {/* <LeftSidebar /> */}
           <Box sx={{ flex: 1, maxWidth: '800px', mx: 'auto' }}>
             <MainContent hasPermission={hasPermission} />
           </Box>

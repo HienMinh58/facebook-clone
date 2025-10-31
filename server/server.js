@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.route.js"
 import friendRoutes from "./routes/friend.route.js"
 import likeRoutes from "./routes/like.route.js"
 import profileRoutes from "./routes/profile.route.js"
+import searchRoutes from "./routes/search.route.js"
 import path from "path";
 const app = express()
 const PORT = process.env.PORT || 5000;
@@ -17,6 +18,7 @@ app.use("/api/likes", likeRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/auth", authRoutes);
 app.use('/api/friends', friendRoutes);
+app.use('/api/search', searchRoutes);
 app.use('/api/profile', profileRoutes);
 
 if (process.env.NODE_ENV === "production") {

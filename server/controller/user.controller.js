@@ -2,6 +2,7 @@ import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import { where } from "sequelize";
 
 export const createUser = async (req, res) => {
     const { username, email, password, confirmPassword } = req.body;
@@ -86,4 +87,35 @@ export const getUser = async (req, res) => {
             error: error.message,
         });
     }
-}
+};
+
+export const getUserByName = async (req, res) => {
+    const username = req.body?.name?.trim();
+    if (!username) {
+        return res.status(400).json({ 
+            success: false, 
+            message: "Name is required" 
+        });
+    }
+    try {
+        const whereClause = { username };
+
+        const users = await User.findAll({where: whereClause,
+            limit: 10
+        });
+        if(!users) {
+            return res.status(404).json({success: false, message: "Cannot found username"});
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: users.map((u) => u.username)
+        })
+    } catch(error) {
+        return res.status(500).json({
+            success: false,
+            message: "An error occur while search for user",
+            error: error.message,
+        });
+    }
+};

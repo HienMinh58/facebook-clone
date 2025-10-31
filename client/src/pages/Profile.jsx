@@ -20,7 +20,7 @@ const Profile = () => {
     const [user, setUser] = useState(currentUser || null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { posts, getProfilePost } = usePostStore();
+    const { profilePosts, getProfilePost } = usePostStore();
     const handleLike = async (postId) => {
       if (!currentUser?.id) {
         setSnackbarMessage('Please login to like post!');
@@ -215,8 +215,8 @@ const Profile = () => {
 
       {/* Posts Section */}
         <Box sx={{ mt: 2 }}>
-          {posts.map((post) => (
-              <PostCard key={post._id} post={post} onLike={handleLike} />
+          {profilePosts.map((profilePost) => (
+              <PostCard key={profilePost._id} post={profilePost} onLike={handleLike} />
           ))}
         </Box>
 

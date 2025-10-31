@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { AppBar, Toolbar, Typography, IconButton, Badge, Avatar, InputBase, Box, Button, Menu, MenuItem} from "@mui/material"
 import { styled } from '@mui/material/styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -60,7 +60,17 @@ function Navbar() {
   const isAuthenticated = !!currentUser;
   const [anchorEl, setAnchorEl] = useState(null); // Trạng thái cho menu
   const open = Boolean(anchorEl);
-  
+  const [results, setResults] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      if (searchTerm.trim() !== "") {
+        handleSearch({ target: { value: searchTerm } });
+      }
+    }, 500); // delay 0.5s
+
+    return () => clearTimeout(delay);
+  }, [searchTerm]);
   const handleProfileClick = () => {
       navigate('/profile');  // Chuyển hướng đến /profile khi click
   };
@@ -70,8 +80,28 @@ function Navbar() {
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget); // Mở menu tại vị trí nhấp
   };
-  const handleSearch = () => {
-    
+  const handleSearch = async (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    if (value.trim() === "") {
+      setResults([]);
+      return;
+    }
+    try {
+      const token = localStorage.getItem("authToken");
+      const res = await api.post(`/api/search`, 
+        { name: value },
+        {
+        headers: {
+          Authorization: `Bearer ${token}`
+        } 
+    });
+      if (res.data.success) {
+        setResults(res.data.data);
+      }
+    } catch(error) {
+      console.error("Search error:", error);
+    }
   }
 
   const handleMenuClose = () => {
@@ -107,8 +137,42 @@ function Navbar() {
                 <StyledInputBase
                   placeholder="Tìm kiếm trên Facebook"
                   inputProps={{ 'aria-label': 'search' }}
+                  value={searchTerm}
+                  onChange={handleSearch}
                 />
               </Search>
+              {results.length > 0 && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    backgroundColor: "white",
+                    color: "black",
+                    mt: 1,
+                    borderRadius: 1,
+                    boxShadow: 3,
+                    width: "250px",
+                    zIndex: 10,
+                  }}
+                >
+                  {results.map((name, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        padding: "8px 12px",
+                        cursor: "pointer",
+                        "&:hover": { backgroundColor: "#f0f0f0" },
+                      }}
+                      onClick={() => {
+                        navigate(`/profile/${name}`);
+                        setResults([]);
+                        setSearchTerm("");
+                      }}
+                    >
+                      {name}
+                    </Box>
+                  ))}
+                </Box>
+              )}
             </Box>
           )}
         </Box>

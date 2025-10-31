@@ -20,11 +20,11 @@ export const usePostStore = create((set) => ({
         throw new Error(res.data.message || 'Failed to fetch user posts');
       }
 
-      const posts = res.data.data.postsWithUserName || []; 
-      set({ posts });
+      const profilePosts = res.data.data.postsWithUserName || []; 
+      set({ profilePosts });
     } catch (error) {
       console.error("Error fetching posts with usernames:", error);
-      set({ posts: [] });
+      set({ profilePosts: [] });
     }
   },
   getPostUserName : async () => {
